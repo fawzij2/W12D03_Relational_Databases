@@ -1,20 +1,18 @@
-const roleModel = require('./../../db/models/role');
+const connection = require('./../../db/db');
 
 const createNewRole = (req, res) => {
 	const { role } = req.body;
 
-	const newRole = new roleModel({
-		role,
-	});
+	const query = "INSERT INTO roles (role) VALUES (?)"
+	const userRole = [role];
 
-	newRole
-		.save()
-		.then((result) => {
-			res.status(201).json(result);
-		})
-		.catch((err) => {
+	connection.query(query,userRole,(err,result)=>{
+		if (err) {
 			res.send(err);
-		});
+			return;
+		}
+		res.status(201).json(result);
+	})
 };
 
 module.exports = {

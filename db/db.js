@@ -1,19 +1,21 @@
-const mongoose = require('mongoose');
+const mysql = require('mysql2');
 require('dotenv').config();
 
-const options = {
-	useNewUrlParser: true,
-	useCreateIndex: true,
-	useUnifiedTopology: true,
-	useFindAndModify: false,
-};
+const connection = mysql.createConnection({
+	user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+});
 
-// connecting mongoose
-mongoose.connect(process.env.DB_URI, options).then(
-	() => {
-		console.log('DB Ready To Use');
-	},
-	(err) => {
-		console.log(err);
-	},
-);
+
+// connecting mysql
+connection.connect((err)=>{
+	if (err){
+		console.log("error connecting: " + err.stack);
+		return
+	}
+	console.log("connected as id: " + connection.threadId)
+});
+
+module.exports = connection;
