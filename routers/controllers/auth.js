@@ -6,10 +6,13 @@ const login = (req, res) => {
 	usersModel
 		.authenticateBasic(email, password)
 		.then((result) => {
-			if (result[1] === 200)
-				return res.status(result[1]).json({ token: result[0] });
+			console.log("result:", result)
+			if (result[0]){
+			    console.log("result[0]:",result[0])
+				return res.status(200).json({ token: result[0] });
+			}
 
-			res.status(result[1]).json(result[0]);
+			res.status(200).json(result[0]);
 		})
 		.catch((err) => {
 			res.send(err);

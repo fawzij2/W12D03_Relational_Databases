@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const connection = require("./../db");
+const mysql = require ("mysql2/promise");
 
 const users = new mongoose.Schema({
 	firstName: { type: String },
@@ -19,29 +21,67 @@ users.pre('save', async function () {
 });
 
 // BASIC AUTH
-users.statics.authenticateBasic = async function (email, password) {
-	try {
-		const user = await this.findOne({ email });
-		if (!user) return ["The email doesn't exist", 404];
+users.statics.authenticateBasic =  async function (email, password) {
+	const query = "SELECT password, id, country, role_id FROM users WHERE email=?";
+		const loginData = [email];
+		
+		const connection = await mysql.createConnection({
+			user: process.env.DB_USER,
+			host: process.env.DB_HOST,
+			password: process.env.DB_PASS,
+			database: process.env.DB_NAME,
+		});
 
-		const valid = await bcrypt.compare(password, user.password);
-		if (valid) {
+		try{
+		const [rows,fields] = await connection.query(query,loginData)
+		console.log('password: ',rows[0].password);
+		if (rows.length === 0){
+			return ["The email doesn't exist", 404];
+		};
+		const valid = await bcrypt.compare(password,rows[0].password);
+		console.log(valid)
+		if (valid){
 			const payload = {
-				userId: user._id,
-				country: user.country,
-				role: user.role,
-			};
-
-			const options = {
-				expiresIn: '60m',
-			};
-
-			return [jwt.sign(payload, process.env.SECRET, options), 200];
-		}
+					userId: rows[0].id,
+					country: rows[0].country,
+					role: rows[0].role_id,
+				};
+			
+				const options = {
+					expiresIn: '60m',
+				};
+			
+				return [jwt.sign(payload, process.env.SECRET, options), 200];
+		};
 		return ['The password you’ve entered is incorrect', 403];
-	} catch (error) {
-		throw new Error(error.message);
+	} catch (err){
+		console.log(err);
+		return err
 	}
+
+		
+	// try {
+	// 	const user = await this.findOne({ email });
+	// 	if (!user) return ["The email doesn't exist", 404];
+
+	// 	const valid = await bcrypt.compare(password, user.password);
+	// 	if (valid) {
+	// 		const payload = {
+	// 			userId: user._id,
+	// 			country: user.country,
+	// 			role: user.role,
+	// 		};
+
+	// 		const options = {
+	// 			expiresIn: '60m',
+	// 		};
+
+	// 		return [jwt.sign(payload, process.env.SECRET, options), 200];
+	// 	}
+	// 	return ['The password you’ve entered is incorrect', 403];
+	// } catch (error) {
+	// 	throw new Error(error.message);
+	// }
 };
 
 module.exports = mongoose.model('User', users);
