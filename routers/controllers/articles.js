@@ -50,21 +50,16 @@ const getAnArticleById = (req, res) => {
 
 const createNewArticle = (req, res) => {
 	const { title, description, author } = req.body;
+	const query = "INSERT INTO articles (title, description, author_id) VALUES (?,?,?)"
+	const articleData = [title, description, author];
 
-	const article = new articlesModel({
-		title,
-		description,
-		author,
-	});
-
-	article
-		.save()
-		.then((result) => {
-			res.status(201).json(result);
-		})
-		.catch((err) => {
+	connection.query(query,articleData,(err,result)=>{
+		if (err) {
 			res.send(err);
-		});
+			return
+		}
+		res.status(200).json(result);
+	})
 };
 
 const updateAnArticleById = (req, res) => {
