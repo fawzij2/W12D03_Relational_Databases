@@ -64,15 +64,18 @@ const createNewArticle = (req, res) => {
 
 const updateAnArticleById = (req, res) => {
 	const id = req.params.id;
+	const {title,author,description} = req.body;
+	const query = "UPDATE articles SET title =?, author_id=?, description=? WHERE id= ?"
+	const updateData = [title, author, description, id];
 
-	articlesModel
-		.findByIdAndUpdate(id, req.body, { new: true })
-		.then((result) => {
-			res.status(200).json(result);
-		})
-		.catch((err) => {
+	connection.query(query,updateData,(err,result)=>{
+		if (err) {
 			res.send(err);
-		});
+			return
+		}
+		res.status(200).json(result);
+	})
+	
 };
 
 const deleteArticleById = (req, res) => {
