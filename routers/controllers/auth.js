@@ -8,7 +8,6 @@ const login = (req, res) => {
 		.then((result) => {
 			console.log("result:", result)
 			if (result[0]){
-			    console.log("result[0]:",result[0])
 				return res.status(200).json({ token: result[0] });
 			}
 

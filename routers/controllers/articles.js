@@ -1,14 +1,16 @@
-const articlesModel = require('./../../db/models/articles');
+const connection = require('./../../db/db');
 
 const getAllArticles = (req, res) => {
-	articlesModel
-		.find({})
-		.then((result) => {
-			res.status(200).json(result);
-		})
-		.catch((err) => {
+	const query = "SELECT * FROM articles WHERE is_deleted = 0"
+
+	connection.query(query,(err,result)=>{
+		if (err) {
 			res.send(err);
-		});
+			return
+		}
+		res.status(200).json(result);
+	})
+	
 };
 
 const getArticlesByAuthor = (req, res) => {
