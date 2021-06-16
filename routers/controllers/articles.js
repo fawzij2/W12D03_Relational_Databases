@@ -58,7 +58,7 @@ const createNewArticle = (req, res) => {
 			res.send(err);
 			return
 		}
-		res.status(200).json(result);
+		res.status(200).json(articleData);
 	})
 };
 
@@ -73,7 +73,7 @@ const updateAnArticleById = (req, res) => {
 			res.send(err);
 			return
 		}
-		res.status(200).json(result);
+		res.status(200).json(updateData);
 	})
 	
 };
