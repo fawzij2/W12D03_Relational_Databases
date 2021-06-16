@@ -36,16 +36,18 @@ const getAnArticleById = (req, res) => {
 
 	if (!_id) return res.status(404).json('not found');
 
-	articlesModel
-		.findOne({ _id })
-		.populate('author', 'firstName -_id')
-		.exec()
-		.then((result) => {
-			res.status(200).json(result);
-		})
-		.catch((err) => {
+	const query = "SELECT firstName, users.id ,title, description, author_id FROM users RIGHT JOIN articles ON users.id = articles.author_id WHERE articles.id=? AND articles.is_deleted=0";
+	const articleId = [_id];
+
+	connection.query(query,articleId,(err,result)=>{
+		if (err) {
 			res.send(err);
-		});
+			return
+		}
+		res.status(200).json(result);
+	})
+
+	
 };
 
 const createNewArticle = (req, res) => {
