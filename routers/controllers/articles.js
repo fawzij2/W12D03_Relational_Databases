@@ -80,18 +80,16 @@ const updateAnArticleById = (req, res) => {
 
 const deleteArticleById = (req, res) => {
 	const id = req.params.id;
+	const query = "UPDATE articles SET is_deleted=1";
+	const article_id = [id];
 
-	articlesModel
-		.findByIdAndDelete(id)
-		.then((result) => {
-			res.status(200).json({
-				success: true,
-				message: `Success Delete atricle with id => ${id}`,
-			});
-		})
-		.catch((err) => {
+	connection.query(query,article_id,(err,result)=>{
+		if (err) {
 			res.send(err);
-		});
+			return
+		}
+		res.status(200).json(result);
+	})
 };
 
 const deleteArticlesByAuthor = (req, res) => {
