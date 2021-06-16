@@ -80,7 +80,7 @@ const updateAnArticleById = (req, res) => {
 
 const deleteArticleById = (req, res) => {
 	const id = req.params.id;
-	const query = "UPDATE articles SET is_deleted=1";
+	const query = "UPDATE articles SET is_deleted=1 Where id = ?";
 	const article_id = [id];
 
 	connection.query(query,article_id,(err,result)=>{
@@ -95,17 +95,16 @@ const deleteArticleById = (req, res) => {
 const deleteArticlesByAuthor = (req, res) => {
 	const author = req.body.author;
 
-	articlesModel
-		.deleteMany({ author })
-		.then((result) => {
-			res.status(200).json({
-				success: true,
-				message: `Success Delete atricle with id => ${author}`,
-			});
-		})
-		.catch((err) => {
+	const query = "UPDATE articles SET is_deleted=1 Where author_id = ?"
+	const author_id = [author];
+
+	connection.query(query,author_id,(err,result)=>{
+		if (err) {
 			res.send(err);
-		});
+			return
+		}
+		res.status(200).json(result);
+	})
 };
 
 module.exports = {
